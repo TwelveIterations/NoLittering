@@ -1,6 +1,7 @@
 package net.blay09.mods.nolittering.mixin;
 
 import net.blay09.mods.nolittering.NoLitteringConfig;
+import net.minecraft.core.Holder;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.levelgen.feature.stateproviders.BlockStateProvider;
 import net.minecraft.world.level.levelgen.feature.treedecorators.PlaceOnGroundDecorator;
@@ -16,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class PlaceOnGroundDecoratorMixin {
     @Shadow
     @Final
-    private BlockStateProvider blockStateProvider;
+    private Holder<BlockStateProvider> blockStateProvider;
 
     @Inject(method = "place", at = @At("HEAD"), cancellable = true)
     public void place(TreeDecorator.Context context, CallbackInfo ci) {
@@ -24,7 +25,7 @@ public class PlaceOnGroundDecoratorMixin {
             return;
         }
 
-        if (blockStateProvider instanceof WeightedStateProviderAccessor weightedStateProvider) {
+        if (blockStateProvider.value() instanceof WeightedStateProviderAccessor weightedStateProvider) {
             final var weightedStates = weightedStateProvider.getWeightedList().unwrap();
             for (final var weightedState : weightedStates) {
                 if (weightedState.value().is(Blocks.LEAF_LITTER)) {
